@@ -1,0 +1,67 @@
+name: Django App CI/CD - Build and Test
+
+on:
+  push:
+    branches: [dev]
+    tags: ["v*"] # This triggers the workflow on tag pushes with 'v' prefix
+  pull_request:
+    branches: [dev]
+
+jobs:
+  build-and-test:
+    name: Build and Test Django App
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set up Docker environment
+        run: |
+          echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}" >> .env.dev
+          echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> .env.dev
+          echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}" >> .env.dev
+          echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}" >> .env.dev
+          echo "DB_ENGINE=${{ secrets.DB_ENGINE }}" >> .env.dev
+          echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}" >> .env.dev
+          echo "DEBUG=${{ secrets.DEBUG }}" >> .env.dev
+          echo "DJANGO_SETTINGS_MODULE=${{ secrets.DJANGO_SETTINGS_MODULE }}" >> .env.dev
+          echo "DJANGO_SUPERUSER_USERNAME=${{ secrets.DJANGO_SUPERUSER_USERNAME }}" >> .env.dev
+          echo "DJANGO_SUPERUSER_EMAIL=${{ secrets.DJANGO_SUPERUSER_EMAIL }}" >> .env.dev
+          echo "DJANGO_SUPERUSER_PASSWORD=${{ secrets.DJANGO_SUPERUSER_PASSWORD }}" >> .env.dev
+
+      - name: Build Docker Container
+        run: docker-compose --env-file .env.dev -f docker-compose.dev.yml up -d
+
+      - name: Run Tests
+        run: docker-compose exec -T djangoapp python manage.py test
+
+      - name: Cleanup
+        run: docker-compose --env-file .env.dev -f docker-compose.dev.yml down
+  publish-to-dockerhub:
+    name: Publish Docker image to Docker Hub
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/dev' && github.event_name == 'push'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile.dev
+          push: true
+          tags: |
+            luisced/django-api-template:latest
+            luisced/django-api-template:${{ github.ref_name }}
+
+      - name: Logout from Docker Hub
+        if: always()
+        run: docker logout
