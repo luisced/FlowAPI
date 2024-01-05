@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from .common_headers import BASE_HEADERS
-from ...cutom_logger import logger
+from ....cutom_logger import logger
 
 import requests
 

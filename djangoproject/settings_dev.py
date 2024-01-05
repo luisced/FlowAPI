@@ -34,6 +34,11 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+
+app_directories = [d for d in os.listdir(os.path.join(
+    BASE_DIR, 'djangoapp', 'apps')) if os.path.isdir(os.path.join(BASE_DIR, 'djangoapp', 'apps', d))]
+
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -45,6 +50,11 @@ INSTALLED_APPS = [
     'rest_framework',
 
 ]
+
+# Agrega las aplicaciones a INSTALLED_APPS
+for app_directory in app_directories:
+    app_name = f'djangoapp.apps.{app_directory}'
+    INSTALLED_APPS.append(app_name)
 
 
 MIDDLEWARE = [

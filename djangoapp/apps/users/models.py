@@ -1,12 +1,11 @@
 from django.contrib.auth.models import AbstractUser
 from django.utils.translation import gettext_lazy as _
-from django.db import models
-# Assuming BaseModel is in a file called base/models.py
-from .models import BaseModel, ActiveManager
+
+# Importa BaseModel desde el módulo externo
+from djangoapp.models import BaseModel, ActiveManager
 
 
 class User(AbstractUser, BaseModel):
-
     active_objects = ActiveManager()
 
     def __str__(self):
