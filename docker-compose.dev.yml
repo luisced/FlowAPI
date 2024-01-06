@@ -14,7 +14,7 @@ services:
       - POSTGRES_HOST=db
       - POSTGRES_PORT=${POSTGRES_PORT}
       - DEBUG=${DEBUG}
-    command: gunicorn djangoproject.wsgi:application -w 2 --bind 0.0.0.0:8000 --reload
+    command: gunicorn djangoproject.wsgi:application -w 2 --bind 0.0.0.0:8000 --reload --reload-engine=poll
 
     env_file: .env.dev
     ports:

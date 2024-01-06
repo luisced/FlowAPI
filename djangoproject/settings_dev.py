@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'djangoapp',
     'rest_framework',
+    'djangoapp.apps.users.config.UsersConfig',
 ]
 # Agrega las aplicaciones a INSTALLED_APPS
 
