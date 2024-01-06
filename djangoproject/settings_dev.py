@@ -24,19 +24,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-i^+p(k#)*9+ftcxvic&7@=x8=h%8%708*3-96k0#e)na8eyob6'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG')
 
-ALLOWED_HOSTS = []
-
-
-# Application definition
-
-
-app_directories = [d for d in os.listdir(os.path.join(
-    BASE_DIR, 'djangoapp', 'apps')) if os.path.isdir(os.path.join(BASE_DIR, 'djangoapp', 'apps', d))]
+ALLOWED_HOSTS = ['*']
 
 
 INSTALLED_APPS = [
@@ -48,13 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'djangoapp',
     'rest_framework',
-
 ]
-
 # Agrega las aplicaciones a INSTALLED_APPS
-for app_directory in app_directories:
-    app_name = f'djangoapp.apps.{app_directory}'
-    INSTALLED_APPS.append(app_name)
 
 
 MIDDLEWARE = [
@@ -138,6 +126,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = 'static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
@@ -168,19 +157,12 @@ LOGGING = {
     'disable_existing_loggers': False,
     # django uses some of its own loggers for internal operations. In case you want to disable them just replace the False above with true.
     # A handler for WARNING. It is basically writing the WARNING messages into a file called WARNING.log
-    'handlers': {
-        'file': {
-            'level': 'WARNING',
-            'class': 'logging.FileHandler',
-            'filename': BASE_DIR / 'warning.log',
-        },
-    },
+
     # A logger for WARNING which has a handler called 'file'. A logger can have multiple handler
     'loggers': {
         # notice the blank '', Usually you would put built in loggers like django or root here based on your needs
         '': {
             # notice how file variable is called in handler which has been defined above
-            'handlers': ['file'],
             'level': 'WARNING',
             'propagate': True,
         },

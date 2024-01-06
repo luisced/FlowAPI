@@ -11,6 +11,7 @@ python manage.py makemigrations --dry-run | grep 'No changes detected' || {
 # Apply migrations
 echo "Applying migrations..."
 python manage.py migrate
+python manage.py collectstatic --noinput
 echo "<==================================>"
 
 # Create a superuser if it doesn't exist (customize this command as needed)
