@@ -23,7 +23,7 @@ RUN useradd -m myuser
 
 # Change the ownership of the /app directory to the non-root user
 RUN chown -R myuser:myuser /app && \
-    chmod +x /app/django.sh
+    chmod +x /app/entrypoint.sh
 USER myuser
 
 
@@ -34,4 +34,4 @@ ENV PATH="/venv/bin:$PATH"
 EXPOSE 8000
 
 # Start the application
-ENTRYPOINT ["/app/django.sh"]
+ENTRYPOINT ["/app/entrypoint.sh"]

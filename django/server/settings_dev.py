@@ -21,15 +21,38 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.server.com/en/4.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-i^+p(k#)*9+ftcxvic&7@=x8=h%8%708*3-96k0#e)na8eyob6'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
+
+# Specify the path to your app directory. Adjust as needed if your script is not in the project root.
+APP_DIRECTORY = 'app'
+
+
+def find_utils_modules(app_directory):
+    utils_modules = []
+    utils_path = os.path.join(app_directory, 'utils')
+
+    if os.path.exists(utils_path) and os.path.isdir(utils_path):
+        for file in os.listdir(utils_path):
+            if file.endswith('.py') and file != '__init__.py':
+                # Remove '.py' from file name
+                module_name = f"{app_directory}.utils.{file[:-3]}"
+                utils_modules.append(module_name)
+
+    return utils_modules
+
+
+# Usage
+utils_modules = find_utils_modules(APP_DIRECTORY)
+
+# Print the utils modules for verification
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -40,7 +63,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'app',
     'rest_framework',
-]
+] + utils_modules
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
