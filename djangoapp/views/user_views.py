@@ -1,9 +1,11 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
-from .models import User
-from .serializers import UserSerializer
+from ..models.user import User
+from ..serializers.user_serializers import UserSerializer
 
 # GET all users
+
+
 @api_view(['GET'])
 def get_users(request):
     users = User.objects.all()
@@ -11,6 +13,8 @@ def get_users(request):
     return Response(serializer.data)
 
 # GET single user
+
+
 @api_view(['GET'])
 def get_user(request, pk):
     user = User.objects.get(id=pk)
@@ -18,6 +22,8 @@ def get_user(request, pk):
     return Response(serializer.data)
 
 # POST new user
+
+
 @api_view(['POST'])
 def create_user(request):
     serializer = UserSerializer(data=request.data)
@@ -26,6 +32,8 @@ def create_user(request):
     return Response(serializer.data)
 
 # PUT update user
+
+
 @api_view(['PUT'])
 def update_user(request, pk):
     user = User.objects.get(id=pk)
@@ -35,6 +43,8 @@ def update_user(request, pk):
     return Response(serializer.data)
 
 # DELETE user
+
+
 @api_view(['DELETE'])
 def delete_user(request, pk):
     user = User.objects.get(id=pk)
