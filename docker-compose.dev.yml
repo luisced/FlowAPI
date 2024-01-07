@@ -1,8 +1,8 @@
 version: "3.9"
 
 services:
-  djangoapp:
-    container_name: djangoapp_dev
+  app:
+    container_name: app_dev
     build:
       context: .
       dockerfile: Dockerfile.dev # Specify the development Dockerfile

@@ -5,7 +5,7 @@
 echo "Checking for changes that require migrations..."
 python manage.py makemigrations --dry-run | grep 'No changes detected' || {
   echo "Creating migrations..."
-  python manage.py makemigrations djangoapp
+  python manage.py makemigrations app
   echo "<==================================>"
 }
 # Apply migrations

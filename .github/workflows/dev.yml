@@ -33,7 +33,7 @@ jobs:
         run: docker-compose --env-file .env.dev -f docker-compose.dev.yml up -d
 
       - name: Run Tests
-        run: docker-compose exec -T djangoapp python manage.py test
+        run: docker-compose exec -T app python manage.py test
 
       - name: Cleanup
         run: docker-compose --env-file .env.dev -f docker-compose.dev.yml down
