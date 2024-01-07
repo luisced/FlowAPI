@@ -7,7 +7,7 @@ import sys
 def main():
     """Run administrative tasks."""
     # Set the Django settings module based on the environment
-    settings_module = os.environ.get('DJANGO_SETTINGS_MODULE', 'djangoproject.settings')
+    settings_module = os.environ.get('DJANGO_SETTINGS_MODULE', 'server.settings')
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', settings_module)
     print(f"Using settings module: {settings_module}")
     try:
