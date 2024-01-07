@@ -30,17 +30,49 @@ UP4U_HEADERS.update({
 })
 
 
-def authenticate_up4u(username: str, password: str) -> bool:
+def authenticate_up4u(username: str, password: str):
     """
-    Authenticate to UP4U and return session cookies if successful.
+    Authenticate to UP4U using provided credentials and return session cookies if successful.
 
-    :param username: The username, ex: 0250009 of the user.
+    :param username: The username of the user.
     :param password: The password of the user.
-    :return: True if the user was authenticated successfully, False otherwise.
+    :return: Tuple of (bool indicating success, session cookies if successful, None otherwise)
     """
-    # Create the session
     try:
         with requests.Session() as session:
-            pass
-    except Exception as e:
-        logger.error(f'Error creating session: {e}')
+            # Fetch the login page to get the CSRF token
+            response = session.get(
+                UP4U_URLS['LOGIN_PAGE_URL'], headers=UP4U_HEADERS)
+            response.raise_for_status()
+            soup = BeautifulSoup(response.text, 'html.parser')
+            csrf_token = soup.find(
+                'input', attrs={'name': '_csrf'}).get('value')
+
+            if not csrf_token:
+                logger.error("CSRF token not found in login page.")
+                return False, None
+
+            # Prepare login data with the CSRF token and provided credentials
+            login_data = {
+                '_csrf': csrf_token,
+                'Login[username]': username,
+                'Login[password]': password,
+                'Login[rememberMe]': '0'
+            }
+
+            # Submit login request
+            login_response = session.post(
+                UP4U_URLS['LOGIN_PAGE_URL'], headers=UP4U_HEADERS, data=login_data)
+            login_response.raise_for_status()
+
+            # Check if login was successful by looking for known failure text
+            if "Usuario o contraseña incorrectos." not in login_response.text:
+                logger.info("User authenticated successfully.")
+                return True, session.cookies
+
+            logger.error("Failed to log in with provided credentials.")
+            return False, None
+
+    except requests.RequestException as e:
+        logger.error(f"Request failed: {e}")
+        return False, None

@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'djangoapp',
     'rest_framework',
     'djangoapp.apps.users.config.UsersConfig',
+    'djangoapp.apps.class_schedule_loader.config.ClassScheduleLoaderConfig',
+    
 ]
 # Agrega las aplicaciones a INSTALLED_APPS
 
