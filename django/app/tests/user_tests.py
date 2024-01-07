@@ -1,22 +1,27 @@
 from rest_framework.test import APITestCase
 from rest_framework import status
 from django.urls import reverse
-from .models import User
+from ..models import User
+
 
 class UserApiTests(APITestCase):
     def setUp(self):
         # Set up any objects you need here
-        self.user = User.objects.create(name='Test User', email='testuser@example.com')
+        self.user = User.objects.create(
+            name='Test User', email='testuser@example.com')
 
     def test_create_user(self):
         url = reverse('create_user')
         data = {'name': 'New User', 'email': 'newuser@example.com'}
         response = self.client.post(url, data)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)  # POST should return HTTP 201 Created
-        self.assertEqual(User.objects.count(), 2)  # Assuming you start with one user in setUp
+        # POST should return HTTP 201 Created
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        # Assuming you start with one user in setUp
+        self.assertEqual(User.objects.count(), 2)
 
     def test_get_users(self):
-        url = reverse('get_users')  # Make sure to define the name in your urls.py
+        # Make sure to define the name in your urls.py
+        url = reverse('get_users')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), User.objects.count())
