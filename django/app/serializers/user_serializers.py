@@ -23,3 +23,10 @@ class UserSerializer(serializers.ModelSerializer):
             validated_data['password'] = make_password(
                 validated_data.get('password'))
         return super(UserSerializer, self).update(instance, validated_data)
+
+    def to_representation(self, instance):
+        # Return the user's email when a user is serialized
+        return {
+            'email': instance.email,
+            'name': instance.name,
+        }
