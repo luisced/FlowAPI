@@ -1,5 +1,9 @@
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+
+
+from django.contrib.auth.hashers import make_password
 
 
 class UserManager(BaseUserManager):
@@ -14,7 +18,7 @@ class UserManager(BaseUserManager):
             username=username,
             name=name,
         )
-        user.set_password(password)
+        user.password = make_password(password)  # This will hash the password
         user.save(using=self._db)
         return user
 
@@ -25,7 +29,6 @@ class UserManager(BaseUserManager):
             username=username,
             name=name,
         )
-        user.is_admin = True
         user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
@@ -37,6 +40,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(max_length=100, unique=True)
     username = models.CharField(max_length=50, unique=True)
     password = models.CharField(max_length=200)
+    is_staff = models.BooleanField(default=False)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username', 'name']
@@ -45,3 +49,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+    def has_perm(self, perm, obj=None):
+        return self.is_active and self.is_superuser
+
+    def has_module_perms(self, app_label):
+        return self.is_active and self.is_superuser
