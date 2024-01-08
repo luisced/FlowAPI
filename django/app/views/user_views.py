@@ -18,6 +18,7 @@ def get_users(request):
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def get_user(request, pk):
     user = User.objects.get(id=pk)
     serializer = UserSerializer(user, many=False)
