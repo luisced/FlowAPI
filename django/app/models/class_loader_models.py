@@ -1,36 +1,5 @@
 from django.db import models
 
-
-class Professor(models.Model):
-    name = models.CharField(max_length=255)  # The name of the professor
-
-    def __str__(self):
-        return self.name
-
-
-class Room(models.Model):
-    room_number = models.CharField(max_length=50)
-    capacity = models.IntegerField()
-
-
-class Course(models.Model):
-    course_id = models.CharField(max_length=50)       # Id del Curso
-    name = models.CharField(max_length=255)           # Materia
-    catalog_number = models.CharField(max_length=50)  # No de catálogo
-
-    def __str__(self):
-        return f"{self.name} ({self.course_id})"
-
-
-class Schedule(models.Model):
-    course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    professor = models.ForeignKey(Professor, on_delete=models.CASCADE)
-    room = models.ForeignKey(Room, on_delete=models.CASCADE)
-
-    start_date = models.DateField()      # Fecha inicial
-    end_date = models.DateField()        # Fecha final
-    start_time = models.TimeField()      # Hora iniciofrom django.db import models
-
 # Professor model
 
 
