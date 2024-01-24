@@ -4,6 +4,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from django.http import QueryDict
 from ..utils.class_loader_utils import process_excel_data
+from ..models import Schedule
+from ..serializers.class_loader_serializers import ScheduleSerializer
 
 import pandas as pd
 
@@ -37,3 +39,11 @@ def load_course_list(request):
     except Exception as e:
         # In a production environment, log this exception.
         return Response({"error": str(e)}, status=500)
+
+
+@api_view(['GET'])
+def get_schedules(request):
+    schedules = Schedule.objects.all()
+    serializer = ScheduleSerializer(schedules, many=True)
+    print(serializer.data)
+    return Response(serializer.data)

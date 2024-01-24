@@ -73,6 +73,7 @@ def process_excel_data(file_obj: File):
     data["Modalidad de la clase"] = data["Modalidad de la clase"].fillna(
         "Presencial")
     data["Modalidad de la clase"] = data["Modalidad de la clase"].replace(
+
         "ENLINEA", "En línea")
 
     # if 'modalidad' is ENLINEA, then 'salon' is null
@@ -83,7 +84,7 @@ def process_excel_data(file_obj: File):
     return data
 
 
-def day_of_week_from_row(row):
+def day_from_row(row):
     """
     Determines the day of the week based on the row data.
 
@@ -156,8 +157,8 @@ def insert_data_to_db(data: pd.DataFrame) -> None:
             )
 
             # Crear o actualizar el horario
-            day_of_week = day_of_week_from_row(row)
-            if day_of_week:
+            day1 = day_from_row(row)
+            if day1:
                 Schedule.objects.get_or_create(
                     course=course,
                     professor=professor,
@@ -167,7 +168,7 @@ def insert_data_to_db(data: pd.DataFrame) -> None:
                     start_time=convert_to_24hr_format(row['Hora inicio']),
                     end_time=convert_to_24hr_format(row['Hora fin']),
                     modality=row['Modalidad de la clase'],
-                    day_of_week=day_of_week,
+                    day=day1,
 
                 )
 

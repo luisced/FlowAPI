@@ -10,5 +10,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path('load',
          views.load_course_list, name='load_course_list'),
+    path('get_schedules',
+         views.get_schedules, name='get_schedules'),
 
 ]

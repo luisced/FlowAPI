@@ -61,7 +61,7 @@ class Schedule(models.Model):
         (SATURDAY, 'Sábado'),
         (SUNDAY, 'Domingo'),
     ]
-    day_of_week = models.CharField(max_length=1, choices=DAY_CHOICES)
+    day = models.CharField(max_length=1, choices=DAY_CHOICES)
 
     ONLINE = 'ENLINEA'
     IN_PERSON = 'PRESENCIAL'
@@ -78,4 +78,4 @@ class Schedule(models.Model):
     )
 
     def __str__(self):
-        return f"{self.course.name} - {self.professor.name}"
+        return f"{self.course.name}, {self.professor.name}, {self.room.room_number}, {self.day}, {self.start_time}, {self.end_time}"
