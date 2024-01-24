@@ -37,22 +37,22 @@ ALLOWED_HOSTS = ['*']
 APP_DIRECTORY = 'app'
 
 
-def find_utils_modules(app_directory):
-    utils_modules = []
-    utils_path = os.path.join(app_directory, 'utils')
+# def find_utils_modules(app_directory):
+#     utils_modules = []
+#     utils_path = os.path.join(app_directory, 'utils')
 
-    if os.path.exists(utils_path) and os.path.isdir(utils_path):
-        for file in os.listdir(utils_path):
-            if file.endswith('.py') and file != '__init__.py':
-                # Remove '.py' from file name
-                module_name = f"{app_directory}.utils.{file[:-3]}"
-                utils_modules.append(module_name)
+#     if os.path.exists(utils_path) and os.path.isdir(utils_path):
+#         for file in os.listdir(utils_path):
+#             if file.endswith('.py') and file != '__init__.py':
+#                 # Remove '.py' from file name
+#                 module_name = f"{app_directory}.utils.{file[:-3]}"
+#                 utils_modules.append(module_name)
 
-    return utils_modules
+#     return utils_modules
 
 
-# Usage
-utils_modules = find_utils_modules(APP_DIRECTORY)
+# # Usage
+# utils_modules = find_utils_modules(APP_DIRECTORY)
 
 # Print the utils modules for verification
 
@@ -66,7 +66,7 @@ INSTALLED_APPS = [
     'app',
     'rest_framework',
     'rest_framework_simplejwt',
-] + utils_modules
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

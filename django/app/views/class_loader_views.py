@@ -2,14 +2,13 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, parser_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
-from ..utils.class_loader import UploadFileForm
 from django.http import QueryDict
+from ..utils.class_loader_utils import process_excel_data
 
 import pandas as pd
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
 def load_course_list(request):
     # Ensure the content type of the request is multipart/form-data
     if not isinstance(request.data, QueryDict) or not request.FILES:
@@ -25,8 +24,10 @@ def load_course_list(request):
         # You may need to handle different file types differently
         if file_obj.name.endswith('.csv'):
             data = pd.read_csv(file_obj)
+            print(data)
         elif file_obj.name.endswith('.xlsx'):
-            data = pd.read_excel(file_obj)
+            data = process_excel_data(file_obj)
+            print(data)
         else:
             return Response({"error": "Unsupported file format."}, status=400)
 

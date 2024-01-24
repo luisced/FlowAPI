@@ -25,7 +25,6 @@ class Course(models.Model):
     name = models.CharField(max_length=255)  # Course name
     catalog_number = models.CharField(max_length=50)  # Catalog number
 
-    # String representation of the Course model
     def __str__(self):
         return f"{self.name} ({self.course_id})"
 
@@ -53,43 +52,30 @@ class Schedule(models.Model):
     FRIDAY = 'V'
     SATURDAY = 'S'
     SUNDAY = 'D'
-
-    # Choices for the day_of_week field
     DAY_CHOICES = [
-        (MONDAY, 'Monday'),
-        (TUESDAY, 'Tuesday'),
-        (WEDNESDAY, 'Wednesday'),
-        (THURSDAY, 'Thursday'),
-        (FRIDAY, 'Friday'),
-        (SATURDAY, 'Saturday'),
-        (SUNDAY, 'Sunday'),
-    ]
-
-    # Field for the day of the week
-    day_of_week = models.CharField(max_length=1, choices=DAY_CHOICES)
-
-    # String representation of the Schedule model
-    def __str__(self):
-        return f"{self.course.name} - {self.professor.name}"
-    end_time = models.TimeField()        # Hora fin
-
-    MONDAY = 'L'
-    TUESDAY = 'M'
-    WEDNESDAY = 'W'
-    THURSDAY = 'J'
-    FRIDAY = 'V'
-    SATURDAY = 'S'
-    SUNDAY = 'D'
-    DAY_CHOICES = [
-        (MONDAY, 'Monday'),
-        (TUESDAY, 'Tuesday'),
-        (WEDNESDAY, 'Wednesday'),
-        (THURSDAY, 'Thursday'),
-        (FRIDAY, 'Friday'),
-        (SATURDAY, 'Saturday'),
-        (SUNDAY, 'Sunday'),
+        (MONDAY, 'Lunes'),
+        (TUESDAY, 'Martes'),
+        (WEDNESDAY, 'Miércoles'),
+        (THURSDAY, 'Jueves'),
+        (FRIDAY, 'Viernes'),
+        (SATURDAY, 'Sábado'),
+        (SUNDAY, 'Domingo'),
     ]
     day_of_week = models.CharField(max_length=1, choices=DAY_CHOICES)
+
+    ONLINE = 'ENLINEA'
+    IN_PERSON = 'PRESENCIAL'
+    HYBRID = 'HIBRIDO'
+    MODALITY_CHOICES = [
+        (ONLINE, 'En línea'),
+        (IN_PERSON, 'Presencial'),
+        (HYBRID, 'Híbrido'),
+    ]
+    modality = models.CharField(
+        max_length=10,
+        choices=MODALITY_CHOICES,
+        default=IN_PERSON,
+    )
 
     def __str__(self):
         return f"{self.course.name} - {self.professor.name}"
