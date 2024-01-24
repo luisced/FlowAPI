@@ -143,7 +143,7 @@ def insert_data_to_db(data: pd.DataFrame) -> None:
 
             # Crear o actualizar el salón
             room, _ = Room.objects.get_or_create(
-                room_number=row['Salón'],
+                room_number=row['Salón'].rstrip(),
                 defaults={'capacity': row['Capacidad del salón']}
             )
 
@@ -151,7 +151,7 @@ def insert_data_to_db(data: pd.DataFrame) -> None:
             course, _ = Course.objects.get_or_create(
                 course_id=row['Id del Curso'],
                 defaults={
-                    'name': row['Materia'],
+                    'name': row['Clase'].rstrip(),
                     'catalog_number': row['No de catálogo']
                 }
             )
