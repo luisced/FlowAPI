@@ -96,7 +96,41 @@ def create_compatible_schedules(courses: list[str], minimum: int = 3, teachers_n
     final_cliques = []
     for clique in cliques:
         if len(clique) >= minimum and all(is_schedule_consistent(clique, graph) for node in clique):
-            final_cliques.append(
-                [schedule for node_id in clique for schedule in graph.nodes[node_id]['schedules']])
+            final_cliques.append(clique)
 
-    return final_cliques
+    # Transformar la estructura de datos
+    final_schedules = transform_schedule_data(final_cliques, graph)
+    print(final_schedules)
+    return final_schedules
+
+
+def transform_schedule_data(cliques, graph):
+    final_schedules = []
+
+    for clique in cliques:
+        # Agrupar por curso y profesor
+        course_professor_map = {}
+        for node_id in clique:
+            for schedule in graph.nodes[node_id]['schedules']:
+                key = (schedule['course_id'], schedule['professor_id'])
+                if key not in course_professor_map:
+                    course_professor_map[key] = {
+                        "course_id": schedule['course_id'],
+                        "professor_id": schedule['professor_id'],
+                        "start_date": schedule['start_date'],
+                        "end_date": schedule['end_date'],
+                        "modality": schedule['modality'],
+                        "schedule": []
+                    }
+                session_info = {
+                    "day": schedule['day'],
+                    "start_time": schedule['start_time'],
+                    "end_time": schedule['end_time'],
+                    "room_id": schedule['room_id']
+                }
+                course_professor_map[key]['schedule'].append(session_info)
+
+        # Agregar los cursos agrupados al resultado final
+        final_schedules.append(list(course_professor_map.values()))
+
+    return final_schedules

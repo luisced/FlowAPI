@@ -20,67 +20,41 @@ class RoomSerializer(serializers.ModelSerializer):
         fields = ('id', 'room_number', 'capacity')
 
 
-class ScheduleDictSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    course_id = serializers.IntegerField()
-    professor_id = serializers.IntegerField()
-    room_id = serializers.IntegerField()
-    start_date = serializers.DateField(format="%Y-%m-%d")
-    end_date = serializers.DateField(format="%Y-%m-%d")
+class SingleScheduleSerializer(serializers.Serializer):
+    day = serializers.CharField(max_length=1)
     start_time = serializers.TimeField(format="%H:%M:%S")
     end_time = serializers.TimeField(format="%H:%M:%S")
-    day = serializers.CharField(max_length=1)
-    modality = serializers.CharField(max_length=10)
+    room_id = serializers.IntegerField()
 
-    # Convert modality to human-readable format
+
+class ScheduleDictSerializer(serializers.Serializer):
+    course_id = serializers.IntegerField()
+    professor_id = serializers.IntegerField()
+    start_date = serializers.DateField(format="%Y-%m-%d")
+    end_date = serializers.DateField(format="%Y-%m-%d")
+    modality = serializers.CharField(max_length=10)
+    schedule = SingleScheduleSerializer(many=True)
+
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-
-        # Get the course, professor, and room objects
         course = Course.objects.get(pk=representation['course_id'])
         professor = Professor.objects.get(pk=representation['professor_id'])
-        room = Room.objects.get(pk=representation['room_id'])
-        day_display = {
-            'L': 'Lunes',
-            'M': 'Martes',
-            'W': 'Miércoles',
-            'J': 'Jueves',
-            'V': 'Viernes',
-            'S': 'Sábado',
-            'D': 'Domingo',
-        }
-        representation['day'] = day_display.get(
-            representation['day'], representation['day'])
+        representation['course'] = CourseSerializer(course).data
+        representation['professor'] = ProfessorSerializer(professor).data
 
-        return {
-            'id': representation['id'],
-            'course': CourseSerializer(course).data,
-            'professor': professor.name,
-            'room': RoomSerializer(room).data,
-            'start_date': representation['start_date'],
-            'end_date': representation['end_date'],
-            'start_time': representation['start_time'],
-            'end_time': representation['end_time'],
-            'day': representation['day'],
-            'modality': representation['modality'],
-        }
+        # Procesa cada horario individual dentro del curso
+        schedule_data = []
+        for schedule in representation['schedule']:
+            room = Room.objects.get(pk=schedule['room_id'])
+            schedule['room'] = RoomSerializer(room).data
+            day_display = {'L': 'Lunes', 'M': 'Martes', 'W': 'Miércoles',
+                           'J': 'Jueves', 'V': 'Viernes', 'S': 'Sábado', 'D': 'Domingo'}
+            schedule['day'] = day_display.get(schedule['day'], schedule['day'])
+            schedule_data.append(schedule)
 
-# # Serializer for handling a list of schedules
+        representation['schedule'] = schedule_data
 
-
-# class ScheduleListSerializer(serializers.Serializer):
-#     schedules = ScheduleDictSerializer(many=True)
-
-#     def create(self, validated_data):
-#         # Custom creation logic if necessary
-#         pass
-
-#     def update(self, instance, validated_data):
-#         # Custom update logic if necessary
-#         pass
-
-
-# Serializer for a group of schedules (e.g., a single person's possible schedule)
+        return representation
 
 
 class ScheduleGroupSerializer(serializers.Serializer):
@@ -88,4 +62,4 @@ class ScheduleGroupSerializer(serializers.Serializer):
 
 
 class ScheduleGroupsListSerializer(serializers.Serializer):
-    generated_schedules = ScheduleGroupSerializer(many=True)
+    schedule_groups = ScheduleGroupSerializer(many=True)

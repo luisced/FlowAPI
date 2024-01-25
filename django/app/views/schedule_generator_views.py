@@ -12,14 +12,20 @@ def generate_schedule(request):
     compatible_schedules = create_compatible_schedules(
         courses_data, minimum=minimum)
 
-    generate_schedules = [{f"schedule": courses}
-                          for courses in compatible_schedules]
+    # Genera los horarios compatibles
+    generated_schedules = [{"schedule": courses}
+                           for courses in compatible_schedules]
 
-    serializer = ScheduleGroupsListSerializer(
-        data={'generated_schedules': generate_schedules})
+    print(generated_schedules)
+
+    # Preparar los datos para el serializador
+    data_for_serializer = {'schedule_groups': generated_schedules}
+
+    # Serializar los datos
+    serializer = ScheduleGroupsListSerializer(data=data_for_serializer)
     if serializer.is_valid():
-        # If valid, return the serialized data, print the number of schedules generated
-        return Response({"data": serializer.data, "count": len(generate_schedules)}, status=200)
+        # Si es válido, devuelve los datos serializados y la cantidad de horarios generados
+        return Response({"data": serializer.data, "count": len(generated_schedules)}, status=200)
     else:
-        # If invalid, return the errors
+        # Si es inválido, devuelve los errores
         return Response(serializer.errors, status=400)
