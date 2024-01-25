@@ -11,7 +11,6 @@ def schedules_overlap(schedules_set_1, schedules_set_2) -> bool:
     for schedule_1 in schedules_set_1:
         for schedule_2 in schedules_set_2:
             if schedule_1['day'] == schedule_2['day']:
-                # Convert datetime.time to datetime.datetime for comparison
                 start_1 = datetime.combine(
                     datetime.min, schedule_1['start_time'])
                 end_1 = datetime.combine(datetime.min, schedule_1['end_time'])
@@ -19,10 +18,9 @@ def schedules_overlap(schedules_set_1, schedules_set_2) -> bool:
                     datetime.min, schedule_2['start_time'])
                 end_2 = datetime.combine(datetime.min, schedule_2['end_time'])
 
-                # Check if the times overlap
                 if (start_1 < end_2) and (end_1 > start_2):
-                    return True  # There is an overlap
-    return False  # No overlap
+                    return True  # Hay overlap
+    return False  # No hay overlap
 
 
 # Función auxiliar para obtener los días esperados de un curso
@@ -49,36 +47,31 @@ def get_grouped_schedules(courses):
         for schedule in course_schedules:
             grouped_schedules[schedule['course_id']
                               ][schedule['professor_id']].append(schedule)
-    print(grouped_schedules)
     return grouped_schedules
 
 
 def is_schedule_consistent(clique, graph):
-    course_days_map = {}
-    course_professor_map = {}
-
+    '''Check that the schedules in a clique are consistent.
+    A schedule is consistent if it has at least one session for each day
+    of the week, but no more than one session for each day of the week.
+    '''
+    # Obtener los días esperados para cada curso
+    expected_days = {}
     for node_id in clique:
-        course_id, professor_id = node_id
-        schedules = graph.nodes[node_id]['schedules']
-
-        if course_id not in course_days_map:
-            course_days_map[course_id] = set()
-            course_professor_map[course_id] = professor_id
-        elif course_professor_map[course_id] != professor_id:
-            return False  # Inconsistencia en el profesor
-
-        for schedule in schedules:
-            if schedule['day'] in course_days_map[course_id]:
-                return False  # Más de una sesión en un día
-            course_days_map[course_id].add(schedule['day'])
-
-    # Verificación de los días esperados (opcional dependiendo de los requisitos)
-    for course_id, days in course_days_map.items():
-        expected_days = get_expected_days_for_course(course_id)
-        if expected_days != days:
+        course_id = graph.nodes[node_id]['schedules'][0]['course_id']
+        expected_days[course_id] = get_expected_days_for_course(course_id)
+    # Obtener los días de cada horario
+    schedule_days = {}
+    for node_id in clique:
+        course_id = graph.nodes[node_id]['schedules'][0]['course_id']
+        schedule_days[course_id] = set(
+            [schedule['day'] for schedule in graph.nodes[node_id]['schedules']])
+    # Verificar que los horarios sean consistentes
+    for course_id, days in expected_days.items():
+        if days != schedule_days[course_id]:
             return False
-
-    return True
+        else:
+            return True
 
 
 def create_compatible_schedules(courses: list[str], minimum: int = 3, teachers_names: list[str] = None) -> list[dict]:
@@ -101,22 +94,42 @@ def create_compatible_schedules(courses: list[str], minimum: int = 3, teachers_n
     cliques = list(nx.find_cliques(graph))
 
     # Filtrar cliques por consistencia y número mínimo de materias
-    final_cliques = [clique for clique in cliques if len(
-        clique) >= minimum and is_schedule_consistent(clique, graph)]
+    final_cliques = []
+    for clique in cliques:
+        if is_schedule_consistent(clique, graph):
+            final_cliques.append(clique)
 
     # Transformar la estructura de datos
-    final_schedules = transform_schedule_data(final_cliques, graph)
-    return final_schedules
+    return transform_schedule_data(final_cliques, graph)
+
+
+def remove_duplicates(schedule_list):
+    unique_schedules = []
+    seen = set()
+
+    for schedule in schedule_list:
+        identifier = (schedule['day'], schedule['start_time'],
+                      schedule['end_time'], schedule['room_id'])
+        if identifier not in seen:
+            seen.add(identifier)
+            unique_schedules.append(schedule)
+
+    return unique_schedules
 
 
 def transform_schedule_data(cliques, graph):
     final_schedules = []
 
     for clique in cliques:
-        # Agrupar por curso y profesor
         course_professor_map = {}
         for node_id in clique:
-            for schedule in graph.nodes[node_id]['schedules']:
+            # Asegurándonos de que 'schedules' sea una lista de diccionarios
+            schedules = graph.nodes[node_id]['schedules']
+            if not isinstance(schedules, list) or not all(isinstance(schedule, dict) for schedule in schedules):
+                raise TypeError(
+                    "Se esperaba una lista de diccionarios para 'schedules'")
+
+            for schedule in schedules:
                 key = (schedule['course_id'], schedule['professor_id'])
                 if key not in course_professor_map:
                     course_professor_map[key] = {
@@ -133,9 +146,11 @@ def transform_schedule_data(cliques, graph):
                     "end_time": schedule['end_time'],
                     "room_id": schedule['room_id']
                 }
-                course_professor_map[key]['schedule'].append(session_info)
+                if session_info not in course_professor_map[key]['schedule'] and session_info['day'] not in [session['day'] for session in course_professor_map[key]['schedule']]:
+                    course_professor_map[key]['schedule'].append(session_info)
+                    print(course_professor_map[key]['schedule'])
 
-        # Agregar los cursos agrupados al resultado final
-        final_schedules.append(list(course_professor_map.values()))
+        final_schedules.append(
+            [value for key, value in course_professor_map.items()])
 
     return final_schedules

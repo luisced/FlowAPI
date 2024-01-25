@@ -23,7 +23,7 @@ def generate_schedule(request):
     serializer = ScheduleGroupsListSerializer(data=data_for_serializer)
     if serializer.is_valid():
         # Si es válido, devuelve los datos serializados y la cantidad de horarios generados
-        return Response({"data": serializer.data, "count": len(generated_schedules)}, status=200)
+        return Response(serializer.data)
     else:
         # Si es inválido, devuelve los errores
         return Response(serializer.errors, status=400)
