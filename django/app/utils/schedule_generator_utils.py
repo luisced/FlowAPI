@@ -148,7 +148,6 @@ def transform_schedule_data(cliques, graph):
                 }
                 if session_info not in course_professor_map[key]['schedule'] and session_info['day'] not in [session['day'] for session in course_professor_map[key]['schedule']]:
                     course_professor_map[key]['schedule'].append(session_info)
-                    print(course_professor_map[key]['schedule'])
 
         final_schedules.append(
             [value for key, value in course_professor_map.items()])
