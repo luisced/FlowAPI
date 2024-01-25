@@ -49,26 +49,34 @@ def get_grouped_schedules(courses):
         for schedule in course_schedules:
             grouped_schedules[schedule['course_id']
                               ][schedule['professor_id']].append(schedule)
+    print(grouped_schedules)
     return grouped_schedules
 
 
 def is_schedule_consistent(clique, graph):
     course_days_map = {}
+    course_professor_map = {}
 
-    # Recopilar los días de cada curso en el clique
     for node_id in clique:
-        course_id = node_id[0]
+        course_id, professor_id = node_id
         schedules = graph.nodes[node_id]['schedules']
+
         if course_id not in course_days_map:
             course_days_map[course_id] = set()
+            course_professor_map[course_id] = professor_id
+        elif course_professor_map[course_id] != professor_id:
+            return False  # Inconsistencia en el profesor
+
         for schedule in schedules:
+            if schedule['day'] in course_days_map[course_id]:
+                return False  # Más de una sesión en un día
             course_days_map[course_id].add(schedule['day'])
 
-    # Verificar que todos los días necesarios estén presentes para cada curso
+    # Verificación de los días esperados (opcional dependiendo de los requisitos)
     for course_id, days in course_days_map.items():
         expected_days = get_expected_days_for_course(course_id)
         if expected_days != days:
-            return False  # Faltan días para este curso
+            return False
 
     return True
 
@@ -93,14 +101,11 @@ def create_compatible_schedules(courses: list[str], minimum: int = 3, teachers_n
     cliques = list(nx.find_cliques(graph))
 
     # Filtrar cliques por consistencia y número mínimo de materias
-    final_cliques = []
-    for clique in cliques:
-        if len(clique) >= minimum and all(is_schedule_consistent(clique, graph) for node in clique):
-            final_cliques.append(clique)
+    final_cliques = [clique for clique in cliques if len(
+        clique) >= minimum and is_schedule_consistent(clique, graph)]
 
     # Transformar la estructura de datos
     final_schedules = transform_schedule_data(final_cliques, graph)
-    print(final_schedules)
     return final_schedules
 
 

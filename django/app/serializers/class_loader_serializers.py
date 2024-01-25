@@ -54,7 +54,14 @@ class ScheduleDictSerializer(serializers.Serializer):
 
         representation['schedule'] = schedule_data
 
-        return representation
+        return {
+            'course': representation['course'],
+            'professor': professor.name,
+            'schedule': representation['schedule'],
+            'start_date': representation['start_date'],
+            'end_date': representation['end_date'],
+            'modality': representation['modality']
+        }
 
 
 class ScheduleGroupSerializer(serializers.Serializer):

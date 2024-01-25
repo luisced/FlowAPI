@@ -16,8 +16,6 @@ def generate_schedule(request):
     generated_schedules = [{"schedule": courses}
                            for courses in compatible_schedules]
 
-    print(generated_schedules)
-
     # Preparar los datos para el serializador
     data_for_serializer = {'schedule_groups': generated_schedules}
 

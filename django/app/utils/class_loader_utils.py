@@ -86,29 +86,25 @@ def process_excel_data(file_obj: File):
 
 def day_from_row(row):
     """
-    Determines the day of the week based on the row data.
+    Process a row from the Excel data to determine the days for the schedule.
 
     Args:
-        row (Series): A pandas Series representing a row from the DataFrame.
+        row (pd.Series): A row of data from the DataFrame.
 
     Returns:
-        str: A string representing the day of the week.
+        list of str: List of days when the class is scheduled.
     """
-    day_mapping = {
-        'Lunes': Schedule.MONDAY,
-        'Martes': Schedule.TUESDAY,
-        'Miércoles': Schedule.WEDNESDAY,
-        'Jueves': Schedule.THURSDAY,
-        'Viernes': Schedule.FRIDAY,
-        'Sábado': Schedule.SATURDAY,
-        'Domingo': Schedule.SUNDAY,
-    }
+    days = []
+    day_columns = ["Lunes", "Martes", "Miércoles",
+                   "Jueves", "Viernes", "Sábado", "Domingo"]
+    day_mappings = {"Lunes": "L", "Martes": "M", "Miércoles": "W",
+                    "Jueves": "J", "Viernes": "V", "Sábado": "S", "Domingo": "D"}
 
-    for day, code in day_mapping.items():
-        if row[day] == 'X':
-            return code
+    for day_col in day_columns:
+        if pd.notna(row[day_col]):
+            days.append(day_mappings[day_col])
 
-    return None
+    return days
 
 
 def convert_to_24hr_format(time_str):
@@ -156,9 +152,9 @@ def insert_data_to_db(data: pd.DataFrame) -> None:
                 }
             )
 
-            # Crear o actualizar el horario
-            day1 = day_from_row(row)
-            if day1:
+            # Procesar los días para cada horario
+            days = day_from_row(row)
+            for day in days:
                 Schedule.objects.get_or_create(
                     course=course,
                     professor=professor,
@@ -168,8 +164,7 @@ def insert_data_to_db(data: pd.DataFrame) -> None:
                     start_time=convert_to_24hr_format(row['Hora inicio']),
                     end_time=convert_to_24hr_format(row['Hora fin']),
                     modality=row['Modalidad de la clase'].rstrip(),
-                    day=day1,
-
+                    day=day,
                 )
 
         except IntegrityError as e:
