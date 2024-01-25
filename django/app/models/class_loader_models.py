@@ -78,4 +78,4 @@ class Schedule(models.Model):
     )
 
     def __str__(self):
-        return f"{self.course.name}, {self.professor.name}, {self.room.room_number}, {self.day}, {self.start_time}, {self.end_time}"
+        return f"{self.course.name}, {self.professor.name}, "
