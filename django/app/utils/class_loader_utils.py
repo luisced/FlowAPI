@@ -167,7 +167,7 @@ def insert_data_to_db(data: pd.DataFrame) -> None:
                     end_date=row['Fecha final'],
                     start_time=convert_to_24hr_format(row['Hora inicio']),
                     end_time=convert_to_24hr_format(row['Hora fin']),
-                    modality=row['Modalidad de la clase'],
+                    modality=row['Modalidad de la clase'].rstrip(),
                     day=day1,
 
                 )
